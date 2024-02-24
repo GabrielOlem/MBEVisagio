@@ -118,7 +118,7 @@ def handle_response(text: str, update: Update) -> str:
             return f'Usuário já registrado na dupla "{al.iloc[0]}"'
         
         if nomedupla not in PLACAR.Dupla.values:
-            PLACAR = pd.concat([PLACAR, pd.DataFrame({'Dupla': [nomedupla], 'Integrantes': [{idPessoal}], 'Placar': [0], 'ValorDiario': [0], 'Meetup': [False], 'Vibe': [False], 'AtivFisica': [0], 'AtivRelax': [0]})], axis=0, ignore_index=True)
+            PLACAR = pd.concat([PLACAR, pd.DataFrame({'Dupla': [nomedupla], 'Integrantes': [{idPessoal}], 'Placar': [0], 'ValorDiario': [0], 'Meetup': [False], 'Vibe': [False], 'AtivFisica': [0], 'AtivRelax': [0], 'Atividade1': [False]})], axis=0, ignore_index=True)
             return 'Dupla Registrada com sucesso'
         else:
             row = PLACAR[PLACAR['Dupla'] == nomedupla].iloc[0]
