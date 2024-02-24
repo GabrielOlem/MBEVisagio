@@ -137,8 +137,8 @@ def handle_response(text: str, update: Update) -> str:
     if '/placar' == processed:
         p = PLACAR[["Dupla", "Placar"]]
         p["Placar"] = p["Placar"].astype('int')
-        m = p.Dupla.str.len().max()
-        p.Dupla = p.Dupla.str.ljust(m, ' ')
+        m = p.Dupla.astype(str).str.len().max()
+        p.Dupla = p.Dupla.astype(str).str.ljust(m, ' ')
         p = p.to_string(index = False)
 
         return f"```{p}```"
