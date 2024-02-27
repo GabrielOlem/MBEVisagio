@@ -65,8 +65,8 @@ def reset():
     PLACAR['Atividade1'] = False
     PLACAR.ValorDiario = PLACAR.ValorDiario.astype(int)
     PLACAR.Placar = PLACAR.Placar.astype(int)
-    PLACAR.AtivFisica = PLACAR.AtivFisica.astype(int)
-    PLACAR.AtivRelax = PLACAR.AtivRelax.astype(int)
+    PLACAR.AtivFisica = PLACAR.AtivFisica.astype('int64')
+    PLACAR.AtivRelax = PLACAR.AtivRelax.astype('int64')
     WKS.clear()
     WKS.set_dataframe(PLACAR,(1,1))
     return 'Tabela Resetada com Sucesso'
@@ -77,7 +77,7 @@ def update_placar(nomeDupla, valor, coluna):
     PLACAR.at[idx, coluna] = valor
 
 def mySetConv(txt):
-    return set() if txt == 'set()' else ast.literal_eval(txt)
+    return dict() if txt == '{}' else ast.literal_eval(txt)
 
 def pontuar(idPessoal, pontos, typ):
     global PLACAR
@@ -98,7 +98,6 @@ def pontuar(idPessoal, pontos, typ):
         PLACAR.at[idx.values[0], "ValorDiario"] += mini
         WKS.clear()
         WKS.set_dataframe(PLACAR,(1,1))
-        return f'Atividade Meetup registrada com sucesso para a dupla "{al["Dupla"]}"'
     elif typ == 'Vibe':   
         if al['Vibe'] == True:
             return f'Atividade Vibe já foi registrada anteriormente para a dupla "{al["Dupla"]}"'
@@ -107,7 +106,6 @@ def pontuar(idPessoal, pontos, typ):
         PLACAR.at[idx.values[0], "ValorDiario"] += mini
         WKS.clear()
         WKS.set_dataframe(PLACAR,(1,1))
-        return f'Atividade Vibe registrada com sucesso para a dupla "{al["Dupla"]}"'
     elif typ == 'Atividade1':   
         if al['Atividade1'] == True:
             return f'A atividade1 já foi registrada anteriormente para a dupla "{al["Dupla"]}"'
@@ -116,60 +114,73 @@ def pontuar(idPessoal, pontos, typ):
         PLACAR.at[idx.values[0], "ValorDiario"] += mini
         WKS.clear()
         WKS.set_dataframe(PLACAR,(1,1))
-        return f'Atividade1 registrada com sucesso para a dupla "{al["Dupla"]}"'    
     elif typ == 'AtivFisica':
-        if al['AtivFisica'] == sum(PLACAR.at[idx.values[0], "Integrantes"]):
+        if al['AtivFisica'] == sum(PLACAR.at[idx.values[0], "Integrantes"].keys()):
             return f'A atividade física já foi registrada anteriormente para a dupla "{al["Dupla"]}"'
         if al['AtivFisica'] == idPessoal:
             return f'A atividade física já foi registrada por você para a dupla "{al["Dupla"]}"'
-        PLACAR.at[idx.values[0], "AtivFisica"] += idPessoal
+        PLACAR.at[idx.values[0], "AtivFisica"] = int(PLACAR.at[idx.values[0], "AtivFisica"]) + idPessoal
         PLACAR.at[idx.values[0], "Placar"] += mini
         PLACAR.at[idx.values[0], "ValorDiario"] += mini
         WKS.clear()
         WKS.set_dataframe(PLACAR,(1,1))
-        return f'A atividade física registrada com sucesso para a dupla "{al["Dupla"]}"'
     elif typ == 'AtivRelax':
-        if al['AtivRelax'] == sum(PLACAR.at[idx.values[0], "Integrantes"]):
+        if al['AtivRelax'] == sum(PLACAR.at[idx.values[0], "Integrantes"].keys()):
             return f'A atividade relax já foi registrada anteriormente para a dupla "{al["Dupla"]}"'
         if al['AtivRelax'] == idPessoal:
             return f'A atividade relax já foi registrada por você para a dupla "{al["Dupla"]}"'
-        PLACAR.at[idx.values[0], "AtivRelax"] += idPessoal
+        PLACAR.at[idx.values[0], "AtivRelax"] = int(PLACAR.at[idx.values[0], "AtivRelax"]) + idPessoal
         PLACAR.at[idx.values[0], "Placar"] += mini
         PLACAR.at[idx.values[0], "ValorDiario"] += mini
         WKS.clear()
         WKS.set_dataframe(PLACAR,(1,1))
-        return f'A atividade relax registrada com sucesso para a dupla "{al["Dupla"]}"'
-        
+    elif typ == 'exit':
+        PLACAR.at[idx.values[0], "Placar"] += pontos
+        WKS.clear()
+        WKS.set_dataframe(PLACAR,(1,1))
+    elif typ == 'registrar':
+        PLACAR.at[idx.values[0], "Placar"] += pontos
+        WKS.clear()
+        WKS.set_dataframe(PLACAR,(1,1))
+        return
+    return f'Obrigado {PLACAR.at[idx.values[0], "Integrantes"][idPessoal]}, você marcou mais {mini} pontos, sua dupla {al["Dupla"]} agora está com {int(PLACAR.at[idx.values[0], "Placar"])} pontos'
         
 
-def handle_response(text: str, update: Update) -> str:
-    processed: str = text.lower()
+def handle_response(processed: str, update: Update) -> str:
     global PLACAR
-    idPessoal = update.message.from_user.id
-
+    idPessoal = int(update.message.from_user.id)
+    idx = PLACAR.Integrantes.explode().eq(idPessoal).loc[lambda x: x].index
     if '/registrar' == processed:
-        return 'Comando não válido. Formato de uso: "/registrar "NOME DA DUPLA"'
+        return 'Comando não válido. Formato de uso: "/registrar Nome.Visagio NomeDupla"'
     
     if '/registrar' in processed:
-        nomedupla = processed.split('/registrar')[1].strip()
+        text = processed.split('/registrar')[1].strip().split(' ')
+        nomedupla = text[1]
+        nomepessoa = text[0]
+        if '.' not in nomepessoa:
+            return f'{update.message.from_user.first_name}, verifique o seu nome Visagio. Formato de uso: "/registrar Nome.Visagio NomeDupla"'
         al = PLACAR.loc[PLACAR.Integrantes.explode().eq(idPessoal).loc[lambda x: x].index, "Dupla"]
         troca = False
         if not al.empty:
             if nomedupla == PLACAR.loc[al.index[0], 'Dupla'] or update.message.date > datetime(2024, 3, 2, 3, 0, tzinfo=timezone.utc):
-                return f'Opa, {update.message.from_user.first_name}. Você já está registrado na dupla "{al.iloc[0]}"'
+                return f'Opa, {nomepessoa}. Você já está registrado na dupla "{al.iloc[0]}"'
             else:
-                PLACAR.loc[al.index[0], 'Integrantes'].remove(idPessoal)
+                PLACAR.loc[al.index[0], 'Integrantes'].pop(idPessoal)
                 troca = True
                 if len(PLACAR.loc[al.index[0], 'Integrantes']) == 0:
                     PLACAR.drop(al.index[0], inplace=True)
         
         if nomedupla not in PLACAR.Dupla.values:
-            PLACAR = pd.concat([PLACAR, pd.DataFrame({'Dupla': [nomedupla], 'Integrantes': [{idPessoal}], 'Placar': [0], 'ValorDiario': [0], 'Meetup': [False], 'Vibe': [False], 'AtivFisica': [0], 'AtivRelax': [0], 'Atividade1': [False]})], axis=0, ignore_index=True)
+            PLACAR = pd.concat([PLACAR, pd.DataFrame({'Dupla': [nomedupla], 'Integrantes': [{idPessoal: nomepessoa}], 'Placar': [0], 'ValorDiario': [0], 'Meetup': [False], 'Vibe': [False], 'AtivFisica': [0], 'AtivRelax': [0], 'Atividade1': [False]})], axis=0, ignore_index=True)
             WKS.clear()
             WKS.set_dataframe(PLACAR,(1,1))
+            if update.message.date < datetime(2024, 3, 1, 3, 0, tzinfo=timezone.utc):
+                    pontuar(idPessoal, 2, 'registrar')
+            elif update.message.date < datetime(2024, 3, 8, 3, 0, tzinfo=timezone.utc):
+                pontuar(idPessoal, 1, 'registrar')
             if troca:
-                return f'Dupla trocada com sucesso, {update.message.from_user.first_name}!'
-            return f'Seja muito bem vindo ao grupo do mês do bem estar, {update.message.from_user.first_name}'
+                return f'Dupla trocada com sucesso, {nomepessoa}!'
+            return f'Seja muito bem vindo ao grupo do mês do bem estar, {nomepessoa}'
         else:
             row = PLACAR[PLACAR['Dupla'] == nomedupla].iloc[0]
             if len(row.Integrantes) == 2:
@@ -180,16 +191,23 @@ def handle_response(text: str, update: Update) -> str:
                 PLACAR.loc[row.name, 'Integrantes'].add(idPessoal)
                 WKS.clear()
                 WKS.set_dataframe(PLACAR,(1,1))
-                return f'Seja muito bem vindo ao grupo do mês do bem estar, {update.message.from_user.first_name}. Sua dupla agora está completa.'
+                if update.message.date < datetime(2024, 3, 1, 3, 0, tzinfo=timezone.utc):
+                    pontuar(idPessoal, 2, 'registrar')
+                elif update.message.date < datetime(2024, 3, 8, 3, 0, tzinfo=timezone.utc):
+                    pontuar(idPessoal, 1, 'registrar')
+                return f'Seja muito bem vindo ao grupo do mês do bem estar, {nomepessoa}. Sua dupla agora está completa.'
        
-    # if update.message.date < datetime(2024, 3, 1, 3, 0, tzinfo=timezone.utc) and processed in ['/meetup', '/ativfisica', '/ativrelax', '/vibe']:
-    #     return f'A atividade "{processed[1:]}" só será permitida a partir do dia 1 de março'
+    if update.message.date < datetime(2024, 3, 1, 3, 0, tzinfo=timezone.utc) and processed in ['/meetup', '/ativfisica', '/ativrelax', '/vibe']:
+        return f'A atividade "{processed[1:]}" só será permitida a partir do dia 1 de março'
+    if '/exit' == processed and update.message.date <= datetime(2024, 4, 1, 3, 0, tzinfo=timezone.utc) and update.message.date >= datetime(2024, 3, 31, 3, 0, tzinfo=timezone.utc):
+        return pontuar(idPessoal, 1, 'exit')
+
     if '/atividade1' == processed:
-        if update.message.date > datetime(2024, 3, 3, 3, 0, tzinfo=timezone.utc):
+        if update.message.date > datetime(2024, 3, 4, 3, 0, tzinfo=timezone.utc):
             return 'O prazo para envio da atividade1 foi finalizado no dia 2 de março'
         if update.message.photo == ():
-            return f"{update.message.from_user.first_name}, para registrar atividade é obrigatório o envio de uma imagem junto com o comando."
-        return pontuar(idPessoal, 4, 'Atividade1')
+            return f'{PLACAR.at[idx.values[0], "Integrantes"][idPessoal]}, para registrar atividade é obrigatório o envio de uma imagem junto com o comando.'
+        return pontuar(idPessoal, 2, 'Atividade1')
 
     if '/placar' == processed:
         stri = "Placar atual:\n\n"
@@ -202,30 +220,30 @@ def handle_response(text: str, update: Update) -> str:
         for i, r in p.iterrows():
             print(len(str(r['Placar'])), r['Placar'])
             con = 15 - len(str(r['Placar']))
-            stri += " "*con + f"{r['Placar']} | {r['Dupla']}\n"
+            stri += ' '*con + f"{r['Placar']} | {r['Dupla']}\n"
         return stri
     
     if '/meetup' == processed:
         if update.message.photo == ():
-            return f"{update.message.from_user.first_name}, para registrar atividade é obrigatório o envio de uma imagem junto com o comando."
+            return f'{PLACAR.at[idx.values[0], "Integrantes"][idPessoal]}, para registrar atividade é obrigatório o envio de uma imagem junto com o comando.'
         return pontuar(idPessoal, 4, 'Meetup')
 
     if '/ativfisica' == processed:
         if update.message.photo == ():
-            return f"{update.message.from_user.first_name}, para registrar atividade é obrigatório o envio de uma imagem junto com o comando."
+            return f'{PLACAR.at[idx.values[0], "Integrantes"][idPessoal]}, para registrar atividade é obrigatório o envio de uma imagem junto com o comando.'
         return pontuar(idPessoal, 1, 'AtivFisica')
     
     if '/ativrelax' == processed:
         if update.message.photo == ():
-            return f"{update.message.from_user.first_name}, para registrar atividade é obrigatório o envio de uma imagem junto com o comando."
+            return f'{PLACAR.at[idx.values[0], "Integrantes"][idPessoal]}, para registrar atividade é obrigatório o envio de uma imagem junto com o comando.'
         return pontuar(idPessoal, 1, 'AtivRelax')
     
     if '/vibe' == processed:
         if update.message.photo == ():
-            return f"{update.message.from_user.first_name}, para registrar atividade é obrigatório o envio de uma imagem junto com o comando."
+            return f'{PLACAR.at[idx.values[0], "Integrantes"][idPessoal]}, para registrar atividade é obrigatório o envio de uma imagem junto com o comando.'
         return pontuar(idPessoal, 4, 'Vibe')
     
-    return f'{update.message.from_user.first_name}, comando não reconhecido. Digite /start para visualizar os comandos disponíveis'
+    return f'{PLACAR.at[idx.values[0], "Integrantes"][idPessoal]}, comando não reconhecido. Digite /start para visualizar os comandos disponíveis'
 
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     message_type: str = update.message.chat.type
@@ -240,6 +258,8 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         print('Bot: ', response)
         if response != '':
             await update.message.reply_text(response)
+            if '/exit' in text:
+                await update.message.chat.ban_member(user_id=update.message.from_user.id)
     
 
 async def error(update: Update, context: ContextTypes.DEFAULT_TYPE):
