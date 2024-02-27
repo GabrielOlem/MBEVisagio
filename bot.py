@@ -175,8 +175,8 @@ def handle_response(processed: str, update: Update) -> str:
             WKS.clear()
             WKS.set_dataframe(PLACAR,(1,1))
             if update.message.date < datetime(2024, 3, 1, 3, 0, tzinfo=timezone.utc):
-                    pontuar(idPessoal, 2, 'registrar')
-            elif update.message.date < datetime(2024, 3, 8, 3, 0, tzinfo=timezone.utc):
+                pontuar(idPessoal, 2, 'registrar')
+            elif update.message.date < datetime(2024, 3, 4, 3, 0, tzinfo=timezone.utc):
                 pontuar(idPessoal, 1, 'registrar')
             if troca:
                 return f'Dupla trocada com sucesso, {nomepessoa}!'
@@ -242,8 +242,42 @@ def handle_response(processed: str, update: Update) -> str:
         if update.message.photo == ():
             return f'{PLACAR.at[idx.values[0], "Integrantes"][idPessoal]}, para registrar atividade é obrigatório o envio de uma imagem junto com o comando.'
         return pontuar(idPessoal, 4, 'Vibe')
-    
-    return f'{PLACAR.at[idx.values[0], "Integrantes"][idPessoal]}, comando não reconhecido. Digite /start para visualizar os comandos disponíveis'
+    if '/help' == processed:
+        return f'''
+        Seja muito bem vindo ao grupo do mês do bem estar, {update.message.from_user.first_name}!
+
+        -- /registrar nome.sobrenome nome dupla - você se registra na dupla desejada
+        -- /placar - Traz as informações consolidadas do placar.
+
+        Comandos para registrar pontos nas atividades, só vale com foto!
+
+        /atividade1 : 2 pontos para a realização do pré-work até 3 de março
+
+        A partir de 1° de março: 
+
+            -- /ativrelax    1 ponto para atividade de descontração qualquer
+            -- /ativfisica   1 ponto para exercicio fisico
+            -- /meetup       4 pontos para MeetUp ViBE
+            -- /vibe         4 pontos para atividade da semana do Bem Estar
+        '''
+    return f'''
+        Oi, {update.message.from_user.first_name}!
+
+        O comando enviado é inválido, essas são as instruções válidas:
+        -- /help - comando para receber as instruções de inicio.
+        -- /registrar nome.sobrenome nome_dupla - você se registra na dupla desejada
+        -- /placar - Traz as informações consolidadas do placar.
+
+        Comandos para registrar pontos nas atividades, só vale com foto!
+
+        /atividade1 : 2 pontos para a realização do pré-work até 3 de março
+
+        A partir de 1° de março: 
+
+            -- /ativrelax    1 ponto para atividade de descontração qualquer
+            -- /ativfisica   1 ponto para exercicio fisico
+            -- /meetup       4 pontos para MeetUp ViBE
+            -- /vibe         4 pontos para atividade da semana do Bem Estar'''
 
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     message_type: str = update.message.chat.type
