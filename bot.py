@@ -94,24 +94,24 @@ def pontuar(idPessoal, pontos, typ):
         if al['Meetup'] == True:
             return f'Atividade Meetup já foi registrada anteriormente para a dupla "{al["Dupla"]}"'
         PLACAR.at[idx.values[0], "Meetup"] = True
-        PLACAR.at[idx.values[0], "Placar"] += mini
-        PLACAR.at[idx.values[0], "ValorDiario"] += mini
+        PLACAR.at[idx.values[0], "Placar"] = int(PLACAR.at[idx.values[0], "Placar"]) + mini
+        PLACAR.at[idx.values[0], "ValorDiario"] = int(PLACAR.at[idx.values[0], "ValorDiario"]) + mini
         WKS.clear()
         WKS.set_dataframe(PLACAR,(1,1))
     elif typ == 'Vibe':   
         if al['Vibe'] == True:
             return f'Atividade Vibe já foi registrada anteriormente para a dupla "{al["Dupla"]}"'
         PLACAR.at[idx.values[0], "Vibe"] = True
-        PLACAR.at[idx.values[0], "Placar"] += mini
-        PLACAR.at[idx.values[0], "ValorDiario"] += mini
+        PLACAR.at[idx.values[0], "Placar"] = int(PLACAR.at[idx.values[0], "Placar"]) + mini
+        PLACAR.at[idx.values[0], "ValorDiario"] = int(PLACAR.at[idx.values[0], "ValorDiario"]) + mini
         WKS.clear()
         WKS.set_dataframe(PLACAR,(1,1))
     elif typ == 'Atividade1':   
         if al['Atividade1'] == True:
             return f'A atividade1 já foi registrada anteriormente para a dupla "{al["Dupla"]}"'
         PLACAR.at[idx.values[0], "Atividade1"] = True
-        PLACAR.at[idx.values[0], "Placar"] += mini
-        PLACAR.at[idx.values[0], "ValorDiario"] += mini
+        PLACAR.at[idx.values[0], "Placar"] = int(PLACAR.at[idx.values[0], "Placar"]) + mini
+        PLACAR.at[idx.values[0], "ValorDiario"] = int(PLACAR.at[idx.values[0], "ValorDiario"]) + mini
         WKS.clear()
         WKS.set_dataframe(PLACAR,(1,1))
     elif typ == 'AtivFisica':
@@ -120,8 +120,8 @@ def pontuar(idPessoal, pontos, typ):
         if al['AtivFisica'] == idPessoal:
             return f'A atividade física já foi registrada por você para a dupla "{al["Dupla"]}"'
         PLACAR.at[idx.values[0], "AtivFisica"] = int(PLACAR.at[idx.values[0], "AtivFisica"]) + idPessoal
-        PLACAR.at[idx.values[0], "Placar"] += mini
-        PLACAR.at[idx.values[0], "ValorDiario"] += mini
+        PLACAR.at[idx.values[0], "Placar"] = int(PLACAR.at[idx.values[0], "Placar"]) + mini
+        PLACAR.at[idx.values[0], "ValorDiario"] = int(PLACAR.at[idx.values[0], "ValorDiario"]) + mini
         WKS.clear()
         WKS.set_dataframe(PLACAR,(1,1))
     elif typ == 'AtivRelax':
@@ -130,16 +130,16 @@ def pontuar(idPessoal, pontos, typ):
         if al['AtivRelax'] == idPessoal:
             return f'A atividade relax já foi registrada por você para a dupla "{al["Dupla"]}"'
         PLACAR.at[idx.values[0], "AtivRelax"] = int(PLACAR.at[idx.values[0], "AtivRelax"]) + idPessoal
-        PLACAR.at[idx.values[0], "Placar"] += mini
-        PLACAR.at[idx.values[0], "ValorDiario"] += mini
+        PLACAR.at[idx.values[0], "Placar"] = int(PLACAR.at[idx.values[0], "Placar"]) + mini
+        PLACAR.at[idx.values[0], "ValorDiario"] = int(PLACAR.at[idx.values[0], "ValorDiario"]) + mini
         WKS.clear()
         WKS.set_dataframe(PLACAR,(1,1))
     elif typ == 'exit':
-        PLACAR.at[idx.values[0], "Placar"] += pontos
+        PLACAR.at[idx.values[0], "Placar"] = int(PLACAR.at[idx.values[0], "Placar"]) + pontos
         WKS.clear()
         WKS.set_dataframe(PLACAR,(1,1))
     elif typ == 'registrar':
-        PLACAR.at[idx.values[0], "Placar"] += pontos
+        PLACAR.at[idx.values[0], "Placar"] = int(PLACAR.at[idx.values[0], "Placar"]) + pontos
         WKS.clear()
         WKS.set_dataframe(PLACAR,(1,1))
         return
@@ -183,7 +183,6 @@ def handle_response(processed: str, update: Update) -> str:
             return f'Seja muito bem vindo ao grupo do mês do bem estar, {nomepessoa}'
         else:
             row = PLACAR[PLACAR['Dupla'] == nomedupla].iloc[0]
-            print(len(row.Integrantes))
             if len(row.Integrantes) == 2:
                 WKS.clear()
                 WKS.set_dataframe(PLACAR,(1,1))
@@ -219,7 +218,6 @@ def handle_response(processed: str, update: Update) -> str:
         # p.Dupla = p.Dupla.astype(str).str.ljust(m, ' ')
         # p = p.to_string(index = False)
         for i, r in p.iterrows():
-            print(len(str(r['Placar'])), r['Placar'])
             con = 15 - len(str(r['Placar']))
             stri += ' '*con + f"{r['Placar']} | {r['Dupla']}\n"
         return stri
