@@ -188,7 +188,7 @@ def handle_response(processed: str, update: Update) -> str:
                 WKS.set_dataframe(PLACAR,(1,1))
                 return f'A dupla "{nomedupla}" já tem duas pessoas, use outro nome por favor.'
             else:
-                PLACAR.loc[row.name, 'Integrantes'].add(idPessoal)
+                PLACAR.loc[row.name, 'Integrantes'][idPessoal] = nomepessoa
                 WKS.clear()
                 WKS.set_dataframe(PLACAR,(1,1))
                 if update.message.date < datetime(2024, 3, 1, 3, 0, tzinfo=timezone.utc):
@@ -206,7 +206,7 @@ def handle_response(processed: str, update: Update) -> str:
         if update.message.date > datetime(2024, 3, 4, 3, 0, tzinfo=timezone.utc):
             return 'O prazo para envio da atividade1 foi finalizado no dia 2 de março'
         if update.message.photo == ():
-            return f'{PLACAR.at[idx.values[0], "Integrantes"][idPessoal]}, para registrar atividade é obrigatório o envio de uma imagem junto com o comando.'
+            return f'{update.message.from_user.first_name}, para registrar atividade é obrigatório o envio de uma imagem junto com o comando.'
         return pontuar(idPessoal, 2, 'Atividade1')
 
     if '/placar' == processed:
@@ -248,7 +248,8 @@ def handle_response(processed: str, update: Update) -> str:
 
         -- /registrar nome.sobrenome nome dupla - você se registra na dupla desejada
         -- /placar - Traz as informações consolidadas do placar.
-
+        -- /troca - Comando explicativo de como realizar as trocas de duplas
+        
         Comandos para registrar pontos nas atividades, só vale com foto!
 
         /atividade1 : 2 pontos para a realização do pré-work até 3 de março
@@ -259,6 +260,14 @@ def handle_response(processed: str, update: Update) -> str:
             -- /ativfisica   1 ponto para exercicio fisico
             -- /meetup       4 pontos para MeetUp ViBE
             -- /vibe         4 pontos para atividade da semana do Bem Estar
+        '''
+    if '/troca' == processed:
+        return f'''
+        Olá, {update.message.from_user.first_name}!
+        Caso você queira trocar de dupla/nome, você tem até o dia 2 de março.
+
+        Basta escrever:
+        -- /registrar nome.sobrenome nome dupla - você irá trocar para a dupla desejada
         '''
     return f'''
         Oi, {update.message.from_user.first_name}!
