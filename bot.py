@@ -183,6 +183,7 @@ def handle_response(processed: str, update: Update) -> str:
             return f'Seja muito bem vindo ao grupo do mês do bem estar, {nomepessoa}'
         else:
             row = PLACAR[PLACAR['Dupla'] == nomedupla].iloc[0]
+            print(len(row.Integrantes))
             if len(row.Integrantes) == 2:
                 WKS.clear()
                 WKS.set_dataframe(PLACAR,(1,1))
@@ -249,7 +250,7 @@ def handle_response(processed: str, update: Update) -> str:
         -- /registrar nome.sobrenome nome dupla - você se registra na dupla desejada
         -- /placar - Traz as informações consolidadas do placar.
         -- /troca - Comando explicativo de como realizar as trocas de duplas
-        
+
         Comandos para registrar pontos nas atividades, só vale com foto!
 
         /atividade1 : 2 pontos para a realização do pré-work até 3 de março
