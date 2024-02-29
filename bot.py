@@ -193,7 +193,7 @@ def handle_response(processed: str, update: Update) -> str:
                 PLACAR.loc[row.name, 'Integrantes'][idPessoal] = nomepessoa
                 WKS.clear()
                 WKS.set_dataframe(PLACAR,(1,1))
-                if update.message.date < datetime(2024, 3, 1, 3, 0, tzinfo=timezone.utc):
+                if update.message.date < datetime(2024, 2, 29, 3, 0, tzinfo=timezone.utc):
                     pontuar(idPessoal, 2, 'registrar')
                 elif update.message.date < datetime(2024, 3, 8, 3, 0, tzinfo=timezone.utc):
                     pontuar(idPessoal, 1, 'registrar')
