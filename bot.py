@@ -291,6 +291,8 @@ def handle_response(processed: str, update: Update) -> str:
 
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     message_type: str = update.message.chat.type
+    print(message_type)
+    print(text)
     if update.message.text != None:
         text: str = update.message.text
     else:
