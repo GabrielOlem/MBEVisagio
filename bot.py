@@ -50,7 +50,7 @@ async def read_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         PLACAR.Integrantes = PLACAR.Integrantes.apply(mySetConv)
         PLACAR.Meetup = PLACAR.Meetup.map({'TRUE': True, 'FALSE': False, 0: False, 1: True})
         PLACAR.Vibe = PLACAR.Vibe.map({'TRUE': True, 'FALSE': False, 0: False, 1: True})
-        PLACAR.Atividade1 = PLACAR.Atividade1.map({'TRUE': True, 'FALSE': False, 0: False, 1: True})
+        PLACAR.Atividade1 = PLACAR.Atividade1.astype(int)
         await update.message.reply_text('PLACAR atualizado com sucesso')
 
 # Handle Responses
@@ -62,7 +62,7 @@ def reset():
     PLACAR['Vibe'] = False
     PLACAR['AtivFisica'] = 0
     PLACAR['AtivRelax'] = 0
-    PLACAR['Atividade1'] = False
+    #PLACAR['Atividade1'] = False
     PLACAR.ValorDiario = PLACAR.ValorDiario.astype(int)
     PLACAR.Placar = PLACAR.Placar.astype(int)
     PLACAR.AtivFisica = PLACAR.AtivFisica.astype('int64')
@@ -107,9 +107,11 @@ def pontuar(idPessoal, pontos, typ):
         WKS.clear()
         WKS.set_dataframe(PLACAR,(1,1))
     elif typ == 'Atividade1':   
-        if al['Atividade1'] == True:
+        if al['Atividade1'] == sum(PLACAR.at[idx.values[0], "Integrantes"].keys()):
             return f'A atividade1 já foi registrada anteriormente para a dupla "{al["Dupla"]}"'
-        PLACAR.at[idx.values[0], "Atividade1"] = True
+        if al['Atividade1'] == idPessoal:
+            return f'A atividade1 já foi registrada por você para a dupla "{al["Dupla"]}"'
+        PLACAR.at[idx.values[0], "Atividade1"] = int(PLACAR.at[idx.values[0], "Atividade1"]) + idPessoal
         PLACAR.at[idx.values[0], "Placar"] = int(PLACAR.at[idx.values[0], "Placar"]) + mini
         PLACAR.at[idx.values[0], "ValorDiario"] = int(PLACAR.at[idx.values[0], "ValorDiario"]) + mini
         WKS.clear()
