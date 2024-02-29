@@ -176,7 +176,7 @@ def handle_response(processed: str, update: Update) -> str:
             PLACAR = pd.concat([PLACAR, pd.DataFrame({'Dupla': [nomedupla], 'Integrantes': [{idPessoal: nomepessoa}], 'Placar': [0], 'ValorDiario': [0], 'Meetup': [False], 'Vibe': [False], 'AtivFisica': [0], 'AtivRelax': [0], 'Atividade1': [False]})], axis=0, ignore_index=True)
             WKS.clear()
             WKS.set_dataframe(PLACAR,(1,1))
-            if update.message.date < datetime(2024, 3, 1, 3, 0, tzinfo=timezone.utc):
+            if update.message.date < datetime(2024, 2, 29, 3, 0, tzinfo=timezone.utc):
                 pontuar(idPessoal, 2, 'registrar')
             elif update.message.date < datetime(2024, 3, 4, 3, 0, tzinfo=timezone.utc):
                 pontuar(idPessoal, 1, 'registrar')
