@@ -308,9 +308,11 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     
 
 async def error(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    
     print(f'Update {update} caused error {context.error}')
 
 if __name__ == '__main__':
+    
     print('Starting bot...')
     app = Application.builder().token(TOKEN).build()
 
@@ -319,10 +321,23 @@ if __name__ == '__main__':
     app.add_handler(CommandHandler('write', write_command))
     app.add_handler(CommandHandler('read', read_command))
 
+    print('Reading Table...')
+    PLACAR = WKS.get_as_df()
+    PLACAR.ValorDiario = PLACAR.ValorDiario.astype(int)
+    PLACAR.Placar = PLACAR.Placar.astype(int)
+    PLACAR.AtivFisica = PLACAR.AtivFisica.astype(int)
+    PLACAR.AtivRelax = PLACAR.AtivRelax.astype(int)
+    PLACAR.Integrantes = PLACAR.Integrantes.apply(mySetConv)
+    PLACAR.Meetup = PLACAR.Meetup.map({'TRUE': True, 'FALSE': False, 0: False, 1: True})
+    PLACAR.Vibe = PLACAR.Vibe.map({'TRUE': True, 'FALSE': False, 0: False, 1: True})
+    PLACAR.Atividade1 = PLACAR.Atividade1.astype(int)
 
     app.add_handler(MessageHandler(filters.ALL, handle_message))
 
 
     app.add_error_handler(error)
+    
     print('Polling...')
     app.run_polling(poll_interval=3)
+    
+    
