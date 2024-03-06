@@ -95,13 +95,12 @@ def mySetConv(txt):
 def contaAtiv(idPessoal, tipo):
     global WKS_2
     global PLACAR_CONTADOR
-    idx = PLACAR_CONTADOR.Id.eq(idPessoal).loc[lambda x: x].index
-    al = PLACAR_CONTADOR.loc[idx]
-    if al.empty:
+    idx = PLACAR_CONTADOR.index[PLACAR_CONTADOR['Id'] == idPessoal].tolist()
+    if len(idx) == 0:
         PLACAR_CONTADOR = pd.concat([PLACAR_CONTADOR, pd.DataFrame({'Id': [idPessoal], 'AtivFisica': [0], 'AtivRelax': [0]})])
-    idx = PLACAR_CONTADOR.Id.eq(idPessoal).loc[lambda x: x].index
-    print(PLACAR_CONTADOR.at[idx.values[0], tipo])
-    PLACAR_CONTADOR.at[idx.values[0], tipo] = int(PLACAR_CONTADOR.at[idx.values[0], tipo]) + 1
+    idx = PLACAR_CONTADOR.index[PLACAR_CONTADOR['Id'] == idPessoal].tolist()[0]
+    print(PLACAR_CONTADOR.at[idx, tipo])
+    PLACAR_CONTADOR.at[idx, tipo] = int(PLACAR_CONTADOR.at[idx, tipo]) + 1
     WKS_2.clear()
     WKS_2.set_dataframe(PLACAR_CONTADOR,(1,1))
 
