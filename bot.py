@@ -97,7 +97,7 @@ def contaAtiv(idPessoal, tipo):
     global PLACAR_CONTADOR
     idx = PLACAR_CONTADOR.index[PLACAR_CONTADOR['Id'] == idPessoal].tolist()
     if len(idx) == 0:
-        PLACAR_CONTADOR = pd.concat([PLACAR_CONTADOR, pd.DataFrame({'Id': [idPessoal], 'AtivFisica': [0], 'AtivRelax': [0]})])
+        PLACAR_CONTADOR = pd.concat([PLACAR_CONTADOR, pd.DataFrame({'Id': [idPessoal], 'AtivFisica': [0], 'AtivRelax': [0]})], axis=0, ignore_index=True)
     idx = PLACAR_CONTADOR.index[PLACAR_CONTADOR['Id'] == idPessoal].tolist()[0]
     print(idx)
     print(PLACAR_CONTADOR.at[idx, tipo])
