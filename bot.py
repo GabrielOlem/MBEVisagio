@@ -361,6 +361,10 @@ if __name__ == '__main__':
     PLACAR.Vibe = PLACAR.Vibe.map({'TRUE': True, 'FALSE': False, 0: False, 1: True})
     PLACAR.Atividade1 = PLACAR.Atividade1.astype(int)
 
+    PLACAR_CONTADOR = WKS_2.get_as_df()
+    PLACAR_CONTADOR.Id = PLACAR_CONTADOR.Id.astype(int)
+    PLACAR_CONTADOR.AtivFisica = PLACAR_CONTADOR.AtivFisica.astype(int)
+    PLACAR_CONTADOR.AtivRelax = PLACAR_CONTADOR.AtivRelax.astype(int)
     app.add_handler(MessageHandler(filters.ALL, handle_message))
 
 
