@@ -10,9 +10,11 @@ import pygsheets
 TOKEN : Final = '7114531591:AAE9K7-80Gx-_sr_cfR1GuVupnAW5AFOO5o'
 BOT_USERNAME : Final = '@MBE_Visagio_Bot'
 PLACAR : Final = pd.DataFrame({'Dupla':[], 'Integrantes': [], 'Placar': [], 'ValorDiario': [], 'Meetup': [], 'Vibe': [], 'AtivFisica': [], 'AtivRelax': [], 'Atividade1': []})
+PLACAR_CONTADOR : Final = pd.DataFrame({'Id': [], 'AtivFisica': [], 'AtivRelax': []})
 GC : Final = pygsheets.authorize(service_file='credentials.json')
 SH : Final = GC.open('MBE')
 WKS : Final = SH[0]
+WKS_2 : Final = SH[1]
 ADMIN : Final = 6837505886
 
 # Commands
@@ -30,16 +32,22 @@ async def update_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def write_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     global WKS
+    global WKS_2
     global PLACAR
+    global PLACAR_CONTADOR
     global ADMIN
     if update.message.from_user.id == ADMIN:
         WKS.clear()
         WKS.set_dataframe(PLACAR,(1,1))
+        WKS_2.clear()
+        WKS_2.set_dataframe(PLACAR_CONTADOR,(1,1))
         await update.message.reply_text('Google sheets atualizado com sucesso')
 
 async def read_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     global WKS
+    global WKS_2
     global PLACAR
+    global PLACAR_CONTADOR
     global ADMIN
     if update.message.from_user.id == ADMIN:
         PLACAR = WKS.get_as_df()
@@ -51,6 +59,11 @@ async def read_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         PLACAR.Meetup = PLACAR.Meetup.map({'TRUE': True, 'FALSE': False, 0: False, 1: True})
         PLACAR.Vibe = PLACAR.Vibe.map({'TRUE': True, 'FALSE': False, 0: False, 1: True})
         PLACAR.Atividade1 = PLACAR.Atividade1.astype(int)
+
+        PLACAR_CONTADOR = WKS_2.get_as_df()
+        PLACAR_CONTADOR.Id = PLACAR_CONTADOR.Id.astype(int)
+        PLACAR_CONTADOR.AtivFisica = PLACAR_CONTADOR.AtivFisica.astype(int)
+        PLACAR_CONTADOR.AtivRelax = PLACAR_CONTADOR.AtivRelax.astype(int)
         await update.message.reply_text('PLACAR atualizado com sucesso')
 
 # Handle Responses
@@ -78,6 +91,20 @@ def update_placar(nomeDupla, valor, coluna):
 
 def mySetConv(txt):
     return dict() if txt == '{}' else ast.literal_eval(txt)
+
+def contaAtiv(idPessoal, tipo):
+    global WKS_2
+    global PLACAR_CONTADOR
+    idx = PLACAR_CONTADOR.Id.eq(idPessoal).loc[lambda x: x].index
+    al = PLACAR_CONTADOR.loc[idx]
+    if al.empty:
+        PLACAR_CONTADOR = pd.concat([PLACAR_CONTADOR, pd.DataFrame({'Id': [idPessoal], 'AtivFisica': [0], 'AtivRelax': [0]})])
+    idx = PLACAR_CONTADOR.Id.eq(idPessoal).loc[lambda x: x].index
+    al = PLACAR_CONTADOR.loc[idx]
+    PLACAR_CONTADOR.at[idx.values[0], tipo] = int(PLACAR_CONTADOR.at[idx.values[0], tipo]) + 1
+    WKS_2.clear()
+    WKS_2.set_dataframe(PLACAR_CONTADOR,(1,1))
+
 
 def pontuar(idPessoal, pontos, typ):
     global PLACAR
@@ -114,6 +141,7 @@ def pontuar(idPessoal, pontos, typ):
         PLACAR.at[idx.values[0], "Atividade1"] = int(PLACAR.at[idx.values[0], "Atividade1"]) + idPessoal
         PLACAR.at[idx.values[0], "Placar"] = int(PLACAR.at[idx.values[0], "Placar"]) + mini
         PLACAR.at[idx.values[0], "ValorDiario"] = int(PLACAR.at[idx.values[0], "ValorDiario"]) + mini
+        
         WKS.clear()
         WKS.set_dataframe(PLACAR,(1,1))
     elif typ == 'AtivFisica':
@@ -124,6 +152,7 @@ def pontuar(idPessoal, pontos, typ):
         PLACAR.at[idx.values[0], "AtivFisica"] = int(PLACAR.at[idx.values[0], "AtivFisica"]) + idPessoal
         PLACAR.at[idx.values[0], "Placar"] = int(PLACAR.at[idx.values[0], "Placar"]) + mini
         PLACAR.at[idx.values[0], "ValorDiario"] = int(PLACAR.at[idx.values[0], "ValorDiario"]) + mini
+        contaAtiv(idPessoal, typ)
         WKS.clear()
         WKS.set_dataframe(PLACAR,(1,1))
     elif typ == 'AtivRelax':
@@ -134,6 +163,7 @@ def pontuar(idPessoal, pontos, typ):
         PLACAR.at[idx.values[0], "AtivRelax"] = int(PLACAR.at[idx.values[0], "AtivRelax"]) + idPessoal
         PLACAR.at[idx.values[0], "Placar"] = int(PLACAR.at[idx.values[0], "Placar"]) + mini
         PLACAR.at[idx.values[0], "ValorDiario"] = int(PLACAR.at[idx.values[0], "ValorDiario"]) + mini
+        contaAtiv(idPessoal, typ)
         WKS.clear()
         WKS.set_dataframe(PLACAR,(1,1))
     elif typ == 'exit':
