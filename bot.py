@@ -100,7 +100,7 @@ def contaAtiv(idPessoal, tipo):
     if al.empty:
         PLACAR_CONTADOR = pd.concat([PLACAR_CONTADOR, pd.DataFrame({'Id': [idPessoal], 'AtivFisica': [0], 'AtivRelax': [0]})])
     idx = PLACAR_CONTADOR.Id.eq(idPessoal).loc[lambda x: x].index
-    al = PLACAR_CONTADOR.loc[idx]
+    print(PLACAR_CONTADOR.at[idx.values[0], tipo])
     PLACAR_CONTADOR.at[idx.values[0], tipo] = int(PLACAR_CONTADOR.at[idx.values[0], tipo]) + 1
     WKS_2.clear()
     WKS_2.set_dataframe(PLACAR_CONTADOR,(1,1))
