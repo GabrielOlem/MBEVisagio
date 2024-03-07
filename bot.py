@@ -106,6 +106,7 @@ def contaAtiv(idPessoal, tipo):
     print(idx)
     print(PLACAR_CONTADOR.at[idx, tipo])
     PLACAR_CONTADOR.at[idx, tipo] = int(PLACAR_CONTADOR.at[idx, tipo]) + 1
+    PLACAR_CONTADOR.Id = PLACAR_CONTADOR.Id.astype(int)
     WKS_2.clear()
     WKS_2.set_dataframe(PLACAR_CONTADOR,(1,1))
 
