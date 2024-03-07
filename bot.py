@@ -97,6 +97,7 @@ def mySetConv(txt):
 def contaAtiv(idPessoal, tipo):
     global WKS_2
     global PLACAR_CONTADOR
+    PLACAR_CONTADOR = PLACAR_CONTADOR.astype(int)
     idPessoal = int(idPessoal)
     print(PLACAR_CONTADOR['Id'].values, idPessoal)
     print(PLACAR_CONTADOR[PLACAR_CONTADOR['Id'] == idPessoal])
