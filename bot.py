@@ -98,7 +98,7 @@ def contaAtiv(idPessoal, tipo):
     global WKS_2
     global PLACAR_CONTADOR
     idPessoal = int(idPessoal)
-    print(PLACAR_CONTADOR.index[PLACAR_CONTADOR['Id'] == idPessoal])
+    print(PLACAR_CONTADOR[PLACAR_CONTADOR['Id'] == idPessoal])
     idx = PLACAR_CONTADOR.index[PLACAR_CONTADOR['Id'] == idPessoal].tolist()
     if len(idx) == 0:
         PLACAR_CONTADOR = pd.concat([PLACAR_CONTADOR, pd.DataFrame({'Id': [idPessoal], 'AtivFisica': [0], 'AtivRelax': [0], 'Meetup': [0], 'Vibe': [0]})], axis=0, ignore_index=True)
