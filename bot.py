@@ -98,7 +98,7 @@ def contaAtiv(idPessoal, tipo):
     global WKS_2
     global PLACAR_CONTADOR
     idPessoal = int(idPessoal)
-    print(idPessoal in PLACAR_CONTADOR['Id'].values)
+    print(PLACAR_CONTADOR['Id'].values, idPessoal)
     print(PLACAR_CONTADOR[PLACAR_CONTADOR['Id'] == idPessoal])
     idx = PLACAR_CONTADOR.index[PLACAR_CONTADOR['Id'] == idPessoal].tolist()
     if len(idx) == 0:
