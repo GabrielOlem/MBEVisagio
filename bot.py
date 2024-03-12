@@ -9,8 +9,8 @@ import pygsheets
 
 TOKEN : Final = '7114531591:AAE9K7-80Gx-_sr_cfR1GuVupnAW5AFOO5o'
 BOT_USERNAME : Final = '@MBE_Visagio_Bot'
-PLACAR : Final = pd.DataFrame({'Dupla':[], 'Integrantes': [], 'Placar': [], 'ValorDiario': [], 'Meetup': [], 'Vibe': [], 'AtivFisica': [], 'AtivRelax': [], 'Atividade1': []})
-PLACAR_CONTADOR : Final = pd.DataFrame({'Id': [], 'AtivFisica': [], 'AtivRelax': [], 'Vibe': [], 'Meetup': []})
+PLACAR : Final = pd.DataFrame({'Dupla':[], 'Integrantes': [], 'Placar': [], 'ValorDiario': [], 'Meetup': [], 'Vibe': [], 'AtivFisica': [], 'AtivRelax': [], 'Atividade1': [], 'Doacao': []})
+PLACAR_CONTADOR : Final = pd.DataFrame({'Id': [], 'AtivFisica': [], 'AtivRelax': [], 'Vibe': [], 'Meetup': [], 'Doacao': []})
 GC : Final = pygsheets.authorize(service_file='credentials.json')
 SH : Final = GC.open('MBE')
 WKS : Final = SH[0]
@@ -23,6 +23,12 @@ async def reset_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if update.message.from_user.id == ADMIN:
         reset()
         await update.message.reply_text('Tabela resetada com sucesso')
+
+async def reset_week_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    global ADMIN
+    if update.message.from_user.id == ADMIN:
+        reset_week()
+        await update.message.reply_text('Tabela semanal resetada com sucesso')
 
 async def update_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     global ADMIN
@@ -55,6 +61,7 @@ async def read_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         PLACAR.Placar = PLACAR.Placar.astype(int)
         PLACAR.AtivFisica = PLACAR.AtivFisica.astype(int)
         PLACAR.AtivRelax = PLACAR.AtivRelax.astype(int)
+        PLACAR.Doacao = PLACAR.Doacao.astype(int)
         PLACAR.Integrantes = PLACAR.Integrantes.apply(mySetConv)
         PLACAR.Meetup = PLACAR.Meetup.map({'TRUE': True, 'FALSE': False, 0: False, 1: True})
         PLACAR.Vibe = PLACAR.Vibe.map({'TRUE': True, 'FALSE': False, 0: False, 1: True})
@@ -66,6 +73,7 @@ async def read_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         PLACAR_CONTADOR.AtivRelax = PLACAR_CONTADOR.AtivRelax.astype(int)
         PLACAR_CONTADOR.Meetup = PLACAR_CONTADOR.Meetup.astype(int)
         PLACAR_CONTADOR.Vibe = PLACAR_CONTADOR.Vibe.astype(int)
+        PLACAR_CONTADOR.Doacao = PLACAR_CONTADOR.Doacao.astype(int)
         await update.message.reply_text('PLACAR atualizado com sucesso')
 
 # Handle Responses
@@ -73,8 +81,6 @@ def reset():
     global PLACAR
     global WKS
     PLACAR['ValorDiario'] = 0
-    PLACAR['Meetup'] = False
-    PLACAR['Vibe'] = False
     PLACAR['AtivFisica'] = 0
     PLACAR['AtivRelax'] = 0
     #PLACAR['Atividade1'] = False
@@ -82,9 +88,26 @@ def reset():
     PLACAR.Placar = PLACAR.Placar.astype(int)
     PLACAR.AtivFisica = PLACAR.AtivFisica.astype('int64')
     PLACAR.AtivRelax = PLACAR.AtivRelax.astype('int64')
+    PLACAR.Doacao = PLACAR.Doacao.astype('int64')
     WKS.clear()
     WKS.set_dataframe(PLACAR,(1,1))
     return 'Tabela Resetada com Sucesso'
+
+def reset_week():
+    global PLACAR
+    global WKS
+    PLACAR['Meetup'] = False
+    PLACAR['Vibe'] = False
+    PLACAR['Doacao'] = 0
+    #PLACAR['Atividade1'] = False
+    PLACAR.ValorDiario = PLACAR.ValorDiario.astype(int)
+    PLACAR.Placar = PLACAR.Placar.astype(int)
+    PLACAR.AtivFisica = PLACAR.AtivFisica.astype('int64')
+    PLACAR.AtivRelax = PLACAR.AtivRelax.astype('int64')
+    PLACAR.Doacao = PLACAR.Doacao.astype('int64')
+    WKS.clear()
+    WKS.set_dataframe(PLACAR,(1,1))
+    return 'Tabela Semanal Resetada com Sucesso'
     
 def update_placar(nomeDupla, valor, coluna):
     global PLACAR
@@ -155,6 +178,17 @@ def pontuar(idPessoal, pontos, typ):
         if al['AtivFisica'] == idPessoal:
             return f'A atividade física já foi registrada por você para a dupla "{al["Dupla"]}"'
         PLACAR.at[idx.values[0], "AtivFisica"] = int(PLACAR.at[idx.values[0], "AtivFisica"]) + idPessoal
+        PLACAR.at[idx.values[0], "Placar"] = int(PLACAR.at[idx.values[0], "Placar"]) + mini
+        PLACAR.at[idx.values[0], "ValorDiario"] = int(PLACAR.at[idx.values[0], "ValorDiario"]) + mini
+        contaAtiv(idPessoal, typ)
+        WKS.clear()
+        WKS.set_dataframe(PLACAR,(1,1))
+    elif typ == 'Doacao':
+        if al['Doacao'] == sum(PLACAR.at[idx.values[0], "Integrantes"].keys()):
+            return f'A doação já foi registrada anteriormente para a dupla "{al["Dupla"]}"'
+        if al['Doacao'] == idPessoal:
+            return f'A doação já foi registrada por você para a dupla "{al["Dupla"]}"'
+        PLACAR.at[idx.values[0], "Doacao"] = int(PLACAR.at[idx.values[0], "Doacao"]) + idPessoal
         PLACAR.at[idx.values[0], "Placar"] = int(PLACAR.at[idx.values[0], "Placar"]) + mini
         PLACAR.at[idx.values[0], "ValorDiario"] = int(PLACAR.at[idx.values[0], "ValorDiario"]) + mini
         contaAtiv(idPessoal, typ)
@@ -278,6 +312,12 @@ def handle_response(processed: str, update: Update) -> str:
         if update.message.photo == ():
             return f'{PLACAR.at[idx.values[0], "Integrantes"][idPessoal]}, para registrar atividade é obrigatório o envio de uma imagem junto com o comando.'
         return pontuar(idPessoal, 4, 'Vibe')
+    
+    if '/doacaovis' == processed:
+        if update.message.photo == ():
+            return f'{PLACAR.at[idx.values[0], "Integrantes"][idPessoal]}, para registrar atividade é obrigatório o envio de uma imagem junto com o comando.'
+        return pontuar(idPessoal, 2, 'Doacao')
+    
     if '/help' == processed:
         return f'''
         Seja muito bem vindo ao grupo do mês do bem estar, {update.message.from_user.first_name}!
@@ -352,6 +392,7 @@ if __name__ == '__main__':
     app = Application.builder().token(TOKEN).build()
 
     app.add_handler(CommandHandler('reset', reset_command))
+    app.add_handler(CommandHandler('resetweek', reset_week_command))
     app.add_handler(CommandHandler('update', update_command))
     app.add_handler(CommandHandler('write', write_command))
     app.add_handler(CommandHandler('read', read_command))
