@@ -313,7 +313,7 @@ def handle_response(processed: str, update: Update) -> str:
             return f'{PLACAR.at[idx.values[0], "Integrantes"][idPessoal]}, para registrar atividade é obrigatório o envio de uma imagem junto com o comando.'
         return pontuar(idPessoal, 4, 'Vibe')
     
-    if '/doacaovis' == processed:
+    if '/doacaoVIS' == processed:
         if update.message.photo == ():
             return f'{PLACAR.at[idx.values[0], "Integrantes"][idPessoal]}, para registrar atividade é obrigatório o envio de uma imagem junto com o comando.'
         return pontuar(idPessoal, 2, 'Doacao')
