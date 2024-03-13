@@ -83,6 +83,8 @@ def reset():
     PLACAR['ValorDiario'] = 0
     PLACAR['AtivFisica'] = 0
     PLACAR['AtivRelax'] = 0
+    PLACAR['Meetup'] = False
+    PLACAR['Vibe'] = False
     #PLACAR['Atividade1'] = False
     PLACAR.ValorDiario = PLACAR.ValorDiario.astype(int)
     PLACAR.Placar = PLACAR.Placar.astype(int)
@@ -96,8 +98,6 @@ def reset():
 def reset_week():
     global PLACAR
     global WKS
-    PLACAR['Meetup'] = False
-    PLACAR['Vibe'] = False
     PLACAR['Doacao'] = 0
     #PLACAR['Atividade1'] = False
     PLACAR.ValorDiario = PLACAR.ValorDiario.astype(int)
