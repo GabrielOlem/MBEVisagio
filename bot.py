@@ -190,7 +190,6 @@ def pontuar(idPessoal, pontos, typ):
             return f'A doação já foi registrada por você para a dupla "{al["Dupla"]}"'
         PLACAR.at[idx.values[0], "Doacao"] = int(PLACAR.at[idx.values[0], "Doacao"]) + idPessoal
         PLACAR.at[idx.values[0], "Placar"] = int(PLACAR.at[idx.values[0], "Placar"]) + mini
-        PLACAR.at[idx.values[0], "ValorDiario"] = int(PLACAR.at[idx.values[0], "ValorDiario"]) + mini
         contaAtiv(idPessoal, typ)
         WKS.clear()
         WKS.set_dataframe(PLACAR,(1,1))
