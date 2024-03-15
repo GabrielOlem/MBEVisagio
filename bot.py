@@ -241,7 +241,7 @@ def handle_response(processed: str, update: Update) -> str:
                     PLACAR.drop(al.index[0], inplace=True)
         
         if nomedupla not in PLACAR.Dupla.values:
-            PLACAR = pd.concat([PLACAR, pd.DataFrame({'Dupla': [nomedupla], 'Integrantes': [{idPessoal: nomepessoa}], 'Placar': [0], 'ValorDiario': [0], 'Meetup': [False], 'Vibe': [False], 'AtivFisica': [0], 'AtivRelax': [0], 'Atividade1': [0]})], axis=0, ignore_index=True)
+            PLACAR = pd.concat([PLACAR, pd.DataFrame({'Dupla': [nomedupla], 'Integrantes': [{idPessoal: nomepessoa}], 'Placar': [0], 'ValorDiario': [0], 'Meetup': [False], 'Vibe': [False], 'AtivFisica': [0], 'AtivRelax': [0], 'Atividade1': [0], 'Doacao': [0]})], axis=0, ignore_index=True)
             WKS.clear()
             WKS.set_dataframe(PLACAR,(1,1))
             if update.message.date < datetime(2024, 2, 29, 3, 0, tzinfo=timezone.utc):
