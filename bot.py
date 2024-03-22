@@ -140,7 +140,7 @@ def pontuar(idPessoal, pontos, typ):
     if al.empty:
         return f'Usuário não registrado em nenhuma dupla'
     al = al.iloc[0]
-    if PLACAR.at[idx.values[0], "ValorDiario"] == 6:
+    if PLACAR.at[idx.values[0], "ValorDiario"] == 6 and typ != 'Doacao':
         return f'Parabéns, a pontuação máxima diária de 6 pontos já foi atingida pela dupla "{PLACAR.at[idx.values[0], "Dupla"]}"! Faça mais atividades amanhã para garantir ainda mais pontos.'
     mini = min(6 - int(PLACAR.at[idx.values[0], "ValorDiario"]), pontos)
     if typ == 'Meetup':
