@@ -193,6 +193,7 @@ def pontuar(idPessoal, pontos, typ):
         contaAtiv(idPessoal, typ)
         WKS.clear()
         WKS.set_dataframe(PLACAR,(1,1))
+        return f'Obrigado {PLACAR.at[idx.values[0], "Integrantes"][idPessoal]}, você marcou mais {pontos} pontos, sua dupla {al["Dupla"]} agora está com {int(PLACAR.at[idx.values[0], "Placar"])} pontos'
     elif typ == 'AtivRelax':
         if al['AtivRelax'] == sum(PLACAR.at[idx.values[0], "Integrantes"].keys()):
             return f'A atividade relax já foi registrada anteriormente para a dupla "{al["Dupla"]}"'
